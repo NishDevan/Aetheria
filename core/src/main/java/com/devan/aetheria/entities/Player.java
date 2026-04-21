@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.devan.aetheria.managers.Assets;
+import com.devan.aetheria.world.Block;
 
 public class Player {
     public Vector2 position;
@@ -21,7 +22,7 @@ public class Player {
     }
 
     public void moveX(float amount) {
-        position.x += amount * Gdx.graphics.getDeltaTime();
+        velocity.x = amount;
     }
 
     public void jump() {
@@ -31,20 +32,53 @@ public class Player {
         }
     }
 
-    public void update(float delta) {
+    public void update(float delta, Block[][] map, int tileSize) {
+        float playerWidth = texture.getWidth();
+
+        // Physics at X axis
+        float nextX = position.x + (velocity.x * delta);
+
+        float checkPointX = (velocity.x > 0) ? nextX + playerWidth : nextX;
+
+        int gridX = (int) (checkPointX / tileSize);
+        int gridY = (int) ((position.y + 16) / tileSize);
+
+        if (gridX >= 0 && gridX < map.length && gridY >= 0 && gridY < map[0].length) {
+            if (map[gridX][gridY] != null) {
+                if (velocity.x > 0) {
+                    nextX = (gridX * tileSize) - playerWidth;
+                } else if (velocity.x < 0) {
+                    nextX = (gridX + 1) * tileSize;
+                }
+                velocity.x = 0;
+            }
+        }
+
+        position.x = nextX;
+        velocity.x = 0;
+
+        // Physics at Y axis
         velocity.y += GRAVITY * delta;
 
-        position.y += velocity.y * delta;
+        float nextY = position.y + (velocity.y * delta);
 
-        float groundLevel = 96f;
+        int playerGridX = (int) ((position.x + 16) / tileSize);
 
-        if (position.y <= groundLevel) {
-            position.y = groundLevel;
-            velocity.y = 0;
-            isGrounded = true;
+        int feetGridY = (int) (nextY / tileSize);
+
+        if (playerGridX >= 0 && playerGridX < map.length && feetGridY >= 0 && feetGridY < map[0].length) {
+            if (velocity.y < 0 && map[playerGridX][feetGridY] != null) {
+                nextY = (feetGridY + 1) * tileSize;
+                velocity.y = 0;
+                isGrounded = true;
+            } else {
+                isGrounded = false;
+            }
         } else {
             isGrounded = false;
         }
+
+        position.y = nextY;
     }
     public void draw(SpriteBatch batch) {
         batch.draw(texture, position.x, position.y);

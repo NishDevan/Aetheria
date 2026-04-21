@@ -59,6 +59,11 @@ public class GameplayScreen implements Screen {
                 }
             }
         }
+
+        worldMap[10][3] = BlockFactory.createBlock("DIRT");
+        worldMap[10][4] = BlockFactory.createBlock("DIRT");
+        worldMap[10][5] = BlockFactory.createBlock("DIRT");
+
     }
 
     @Override
@@ -70,7 +75,7 @@ public class GameplayScreen implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
-        player.update(delta);
+        player.update(delta, worldMap, TILE_SIZE);
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             keyA.execute(player);
         }
