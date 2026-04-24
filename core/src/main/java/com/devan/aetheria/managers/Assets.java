@@ -20,6 +20,8 @@ public class Assets {
 
     public void load() {
         manager.load("player.png", Texture.class);
+        manager.load("player_run.png", Texture.class);
+        manager.load("player_jump.png", Texture.class);
         manager.load("dirt.png", Texture.class);
     }
 
